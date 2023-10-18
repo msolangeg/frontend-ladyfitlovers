@@ -5,6 +5,7 @@ import {
   USER_BY_ID,
   AUTH_USER,
   GET_ALL_USERS,
+  SAVE_EMAIL,
   //products
   GET_ALL_PRODUCTS,
   GET_ID_DETAIL_PRODUCTS,
@@ -26,12 +27,21 @@ import {
   GET_CART,
   DECREMENT_QUANTITY,
   INCREMENT_QUANTITY,
-
+  REMOVING_PRODUCT,
+  CLEAN_CART_REDUCER,
+  //checkout
+  SHIPPING_TYPE,
+  SHIPPING_COST,
   //orders
   GET_ORDERS,
-
+  GET_ORDERID,
+  GET_FAVORITES_BY_ID_USER,
+  ADD_FAVS,
+  DELETE_FAV,
   //favorites
   //purchase
+  //reviews
+  GET_REVIEW_BY_USERID,
 } from "../Actions/actionTypes";
 
 const initialState = {
@@ -53,6 +63,7 @@ const initialState = {
   userId: [],
   user: [],
   token: [],
+  email: "",
   saveFilters: {
     category: [],
     color: [],
@@ -62,21 +73,24 @@ const initialState = {
   },
   //cart
   cart: [],
-
+  //checkout
+  shippingType: null,
+  shippingCost: null,
   //orders
   allOrders: [],
-
-  //favorites
+  ordersUser: [],
+  favorites: [],
   //purchase
+  //reviews
+  reviewsByUser: null,
 };
-
 const reducer = (state = initialState, action) => {
   switch (action.type) {
     case GET_ALL_PRODUCTS:
       return {
         ...state,
-        saveProducts: action.payload,
-        allProducts: action.payload,
+        saveProducts: action.payload.filter((product) => product.active),
+        allProducts: action.payload.filter((product) => product.active),
         productsPerPage: action.payload.slice(0, state.quantity),
         allProductsAdmin: action.payload,
         totalButtons: Math.ceil(action.payload.length / state.quantity),
@@ -194,25 +208,27 @@ const reducer = (state = initialState, action) => {
         allCategories: [...state.allCategories, action.payload],
       };
     case LOGIN_USER:
+      console.log("User logged in:", action);
       return {
         ...state,
         isLoggedIn: true,
         userId: action.payload.id,
-        token: action.payload.token,
+        accessToken: action.payload.token,
       };
 
     case USER_BY_ID:
-      console.log("User by ID:", action.payload);
+      console.log(action.payload);
       return {
         ...state,
         user: action.payload,
       };
+
     case AUTH_USER:
       console.log("User authenticated with Google", action.payload);
       return {
         ...state,
         isLoggedIn: true,
-        token: action.payload.token,
+        accessToken: action.accessToken,
         user: action.payload,
       };
     case LOGOUT_USER:
@@ -353,12 +369,43 @@ const reducer = (state = initialState, action) => {
           cart: [...state.cart],
         };
       }
+    case REMOVING_PRODUCT:
+      let productRemoved = state.cart[action.payload];
+      return {
+        ...state,
+        cart: state.cart.filter((prod) => prod !== productRemoved),
+      };
+    case GET_CART:
+      if (action.payload.length) {
+        return {
+          ...state,
+          cart: action.payload,
+        };
+      } else {
+        return {
+          ...state,
+        };
+      }
+    case CLEAN_CART_REDUCER:
+      return {
+        ...state,
+        cart: action.payload,
+      };
+    case SHIPPING_TYPE:
+      return {
+        ...state,
+        shippingType: action.payload,
+      };
+    case SHIPPING_COST:
+      return {
+        ...state,
+        shippingCost: action.payload,
+      };
     case GET_ALL_USERS:
       return {
         ...state,
         allUsers: action.payload,
       };
-
     case CLEAN_CART:
       return {
         ...state,
@@ -369,7 +416,40 @@ const reducer = (state = initialState, action) => {
         ...state,
         allOrders: action.payload,
       };
+    case GET_ORDERID:
+      console.log(action.payload);
+      return {
+        ...state,
+        ordersUser: action.payload,
+      };
+    case SAVE_EMAIL:
+      return {
+        ...state,
+        email: action.payload,
+      };
+    case GET_REVIEW_BY_USERID:
+      console.log(action.payload);
+      return {
+        ...state,
+        reviewsByUser: action.payload,
+      };
+    case GET_FAVORITES_BY_ID_USER:
+      return {
+        ...state,
+        favorites: action.payload,
+      };
+    case ADD_FAVS:
+      return {
+        ...state,
+        favorites: [...state.favorites, action.payload],
+      };
 
+    case DELETE_FAV:
+      const prueba = state.favorites.filter((e) => e.id === action.payload.id);
+      return {
+        ...state,
+        favorites: state.favorites.filter((e) => e.id !== action.payload.id),
+      };
     default:
       return {
         ...state,

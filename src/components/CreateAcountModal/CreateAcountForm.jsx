@@ -1,7 +1,7 @@
-import React, { useState , useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Input, Button, message, Select } from "antd";
 import { Field, useFormikContext } from "formik";
-import { useDispatch} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { provincias } from "./Provincias";
 import { saveImage } from "../CreateProduct/saveImage";
 import AvatarEditor from "react-avatar-editor";
@@ -12,11 +12,13 @@ import postUser from "../../redux/Actions/User/postUser";
 import getUserById from "../../redux/Actions/User/getUserById"
 import editPhoto from "../editPhoto/editPhoto";
 import getAllUsers from "../../redux/Actions/User/getAllUsers";
+import UpdatePasswordModal from "../UpdatePassword/UpdatePasswordModal";
 import "./createAcountModal.css";
 import "./createAcountForm.css"
 
 const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }) => {
-
+  const accessToken = useSelector((state) => state.accessToken);
+  const [loginModalVisible, setLoginModalVisible] = useState(false);
   const { values, errors, resetForm } = useFormikContext();
   const [selectedImage, setSelectedImage] = useState({
     saveImage: null,
@@ -43,11 +45,11 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
         }
       }
     }
-  
+
     fetchImage(); // Llama a la función async inmediatamente
-  
+
   }, [selectedImage.saveImage]);
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
@@ -56,14 +58,24 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
 
   const handleSubmit = async () => {
     setLoading(true);
-    const address = `${values.calle} ${values.numero} ${values.dpto}, entre: ${values.entreCalles}, ${values.localidad} - CP: ${values.codigoPostal}, ${values.provincia}`;
+    // const address = `${values.calle} ${values.numero} ${values.dpto}, entre: ${values.entreCalles}, ${values.localidad} - CP: ${values.codigoPostal}, ${values.provincia}`;
+
 
     const valuesToSend = {
+      id: idUser,
       name: values.name,
       surname: values.surname,
       phone: values.phone,
-      address: address,
-      email: values.email,
+      address: {
+        calle: values.calle,
+        numero: values.numero,
+        dpto: values.dpto,
+        entreCalles: values.entreCalles,
+        localidad: values.localidad,
+        provincia: values.provincia,
+        codigoPostal: values.codigoPostal,
+      },
+      email: values.email.toLowerCase(),
       password: values.password,
       userBan: false
     }
@@ -84,27 +96,33 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
     }
   };
   const handleSubmitupdate = async () => {
-    const address = `${values.calle} ${values.numero} ${values.dpto}, entre: ${values.entreCalles}, ${values.localidad} - CP: ${values.codigoPostal}, ${values.provincia}`;
-  
+
     const valuesToSend = {
       id: idUser,
       name: values.name,
       surname: values.surname,
       phone: values.phone,
-      address: address,
+      address: {
+        calle: values.calle,
+        numero: values.numero,
+        dpto: values.dpto,
+        entreCalles: values.entreCalles,
+        localidad: values.localidad,
+        provincia: values.provincia,
+        codigoPostal: values.codigoPostal,
+      },
       email: values.email,
       image: selectedImage.urlImage
     }
-    console.log(valuesToSend)
 
     try {
-      const response = await dispatch(updateUser(valuesToSend));
-      console.log(response);
-      dispatch(getUserById(valuesToSend.id));
+      const response = await dispatch(updateUser(valuesToSend, accessToken));
+      dispatch(getUserById(valuesToSend.id, accessToken));
 
       if (response.message === "Usuario editado correctamente") {
         message.success(response.message);
         resetForm(); // Restablece los valores del formulario
+        dispatch(getUserById(valuesToSend.id, accessToken))
       } else {
         message.error("Error al editar la cuenta");
       }
@@ -112,51 +130,60 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
       message.error("hola");
     }
   }
+  const openLoginModal = () => {
+    setLoginModalVisible(true);
+  }
   const handleEdit = async () => {
     setLoading(true);
-    const address= `${values.calle} ${values.numero} ${values.dpto}, entre: ${values.entreCalles}, ${values.localidad} - CP: ${values.codigoPostal}, ${values.provincia}`;
-
-    const checkNewAddress = values.calle && values.numero && values.dpto && values.entreCalles && values.localidad && values.codigoPostal && values.provincia
 
     const valuesToSend = {
       id: values.id,
       name: values.name,
       surname: values.surname,
       phone: values.phone,
-      address: checkNewAddress ?  address : values.address ,
+      address: {
+        calle: values.calle,
+        numero: values.numero,
+        dpto: values.dpto,
+        entreCalles: values.entreCalles,
+        localidad: values.localidad,
+        provincia: values.provincia,
+        codigoPostal: values.codigoPostal,
+      },
       email: values.email,
       password: values.password,
-      userBan: values.userBan
+      userBan: values.userBan,
+      typeUser: values.typeUser
     }
 
 
     try {
-      const response = await dispatch(updateUser(valuesToSend)); // cambiar por putUser
+      const response = await dispatch(updateUser(valuesToSend, accessToken)); // cambiar por putUser
 
       if (response.message === "Usuario editado correctamente") {
         message.success(response.message, [2], onClose());
         setLoading(false);
       } else {
-        message.error("Error al editar el usuario" , [2], onClose());
+        message.error("Error al editar el usuario", [2], onClose());
       }
       onClose();
       resetForm();
-      dispatch(getAllUsers())
+      dispatch(getAllUsers(accessToken))
     } catch {
-        message.error("Error al editar el usuario" , [2], onClose());
+      message.error("Error al editar el usuario", [2], onClose());
     }
   };
 
   return (
     <>
       <div className="containerFormCreateAcount">
-        { pivotuser ? <Input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-          />: ""
+        {pivotuser ? <Input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+        /> : ""
         }
-        
+
         <Field id="name" name="name">
           {/* Todos los field tienen que tener un name y un id por defecto, lo que cambia es el valor que yo le envìo */}
           {({ field, form, meta, error }) => {
@@ -200,10 +227,10 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
           }}
         </Field>
         {
-          pivotuser ? <p>Direccion actual: {dataAddress}</p> : ""
+          pivotuser ? <p>Direccion actual: {dataAddress? `${dataAddress.calle} ${dataAddress.numero} ${dataAddress.dpto} ${dataAddress.entreCalles} ${dataAddress.localidad} ${dataAddress.provincia} ${dataAddress.codigoPostal}` : "No definido"}</p> : ""
         }
         {
-          isEditing ? <p>Direccion actual: {values.address}</p> : ""
+          isEditing ? <p>Direccion actual: {values.address ? `${values.address.calle} ${values.address.numero} ${values.address.dpto} ${values.address.entreCalles} ${values.address.localidad} ${values.address.provincia} ${values.address.codigoPostal}` : "No definido"} </p> : ""
         }
         <div className="createAcountCalleNumDpto">
           <Field id="calle" name="calle">
@@ -211,9 +238,9 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
               return (
                 <div className="fieldAndError">
                   <Input {...field} placeholder="Calle*" autoComplete="off" />
-                  {errors.calle && (
+                  {pivotuser ? errors.calle && (
                     <p className="createProductError">{errors.calle}</p>
-                  )}
+                  ) : ""}
                 </div>
               );
             }}
@@ -223,9 +250,9 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
               return (
                 <div className="fieldAndError">
                   <Input {...field} placeholder="Número*" autoComplete="off" />
-                  {errors.numero && (
+                  {pivotuser ? errors.numero && (
                     <p className="createProductError">{errors.numero}</p>
-                  )}
+                  ) : ""}
                 </div>
               );
             }}
@@ -235,9 +262,9 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
               return (
                 <div className="fieldAndError">
                   <Input {...field} placeholder="Dpto" autoComplete="off" />
-                  {errors.dpto && (
+                  {pivotuser ? errors.dpto && (
                     <p className="createProductError">{errors.dpto}</p>
-                  )}
+                  ) : ""}
                 </div>
               );
             }}
@@ -252,9 +279,9 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
                   placeholder="Entre calles*"
                   autoComplete="off"
                 />
-                {errors.entreCalles && (
+                {pivotuser ? errors.entreCalles && (
                   <p className="createProductError">{errors.entreCalles}</p>
-                )}
+                ) : ""}
               </div>
             );
           }}
@@ -265,9 +292,9 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
               return (
                 <div className="fieldAndError">
                   <Input {...field} placeholder="Localidad*" autoComplete="off" />
-                  {errors.localidad && (
+                  {pivotuser ? errors.localidad && (
                     <p className="createProductError">{errors.localidad}</p>
-                  )}
+                  ) : ""}
                 </div>
               );
             }}
@@ -281,9 +308,9 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
                     placeholder="Código postal*"
                     autoComplete="off"
                   />
-                  {errors.codigoPostal && (
+                  {pivotuser ? errors.codigoPostal && (
                     <p className="createProductError">{errors.codigoPostal}</p>
-                  )}
+                  ) : ""}
                 </div>
               );
             }}
@@ -299,9 +326,9 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
                   onChange={(value) => form.setFieldValue("provincia", value)}
                   style={{ width: "100%" }}
                 />
-                {errors.provincia && (
+                {pivotuser ? errors.provincia && (
                   <p className="createProductError">{errors.provincia}</p>
-                )}
+                ) : ""}
               </div>
             );
           }}
@@ -334,7 +361,6 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
                         placeholder="Password*"
                         autoComplete="off"
                       />
-
                   }
                   {
                     pivotuser ? "" :
@@ -363,6 +389,13 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
               type="button"
               onClick={() => onClose()}
             />
+          }
+          {
+            pivotuser ? <ButtonSecondary
+              title="Update Password"
+              type="button"
+              onClick={openLoginModal}
+            /> : ""
           }
 
           {
@@ -397,14 +430,18 @@ const CreateAcountForm = ({ onClose, pivotuser, dataAddress, idUser, isEditing }
                   errors.codigoPostal ||
                   errors.provincia ||
                   errors.email ||
-                  errors.password  ||
+                  errors.password ||
                   loading
                 }
               />
           }
 
-
         </div>
+        <UpdatePasswordModal
+          visible={loginModalVisible}
+          onClose={() => setLoginModalVisible(false)}
+          pivotuser={pivotuser}
+        />
       </div>
     </>
   );

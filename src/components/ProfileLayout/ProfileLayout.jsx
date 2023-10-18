@@ -6,15 +6,20 @@ import {
   StarOutlined,
   HeartOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Button, theme } from "antd";
+import { Layout, Menu, Button, theme, Table } from "antd";
 import DataProfile from "../DataProfile/DataProfile";
 import CreateAcountForm from "../CreateAcountModal/CreateAcountForm";
+import ShoppingClient from "../ShoppingClient/ShoppingClient";
+import ReviewsClient from "../ReviewsClient/ReviewsClient";
+import TableShoppingClient from "../TableShoppingClient/TableShoppingClient";
 import style from "./ProfileLayout.module.css";
 import { Formik, Form } from "formik";
 import {CreateAcountSchema} from "../CreateAcountModal/createAcountSchema";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
+import Favs from "../../views/Favs/Favs";
+import ProductFavs from "../ProductFavs/ProductFavs";
 
 
 const { Header, Sider, Content } = Layout;
@@ -33,16 +38,23 @@ const ProfileLayout = ({ profileKey }) => {
   });
 
   useEffect(() => {
-    console.log(infouser);
+    
     if (infouser) {
       setFormData({
         id: infouser.id,
-        name: infouser.name || "",
-        surname: infouser.surname || "",
-        email: infouser.email || "",
-        phone: infouser.phone || "",
-        provincia: infouser.provincia || "",
-        address: infouser.address || "",
+        name: infouser?.name || "",
+        surname: infouser?.surname || "",
+        email: infouser?.email || "",
+        phone: infouser?.phone || "",
+        address: {
+          calle: infouser.address?.calle || "",
+          numero: infouser.address?.numero || "",
+          dpto: infouser.address?.dpto || "",
+          entreCalles: infouser.address?.entreCalles || "",
+          localidad: infouser.address?.localidad || "",
+          codigoPostal: infouser.address?.codigoPostal || "",
+          provincia: infouser.address?.provincia || "",
+        },
         pivotuser: true,
       });
     }else if (!infouser.id){
@@ -98,18 +110,21 @@ const ProfileLayout = ({ profileKey }) => {
       <Layout>
         <Content className={style.layaout1}>
           {selectedKey === "perfil" && <DataProfile />}
+          {selectedKey === "compras" && <ShoppingClient idUser={infouser.id} />}
+          {selectedKey === "favoritos" && <Favs/>}
+          {selectedKey === "compras" && <TableShoppingClient />}
           {selectedKey === "editar" && (
             <Formik
               initialValues={{
                 name: dataUser.name,
                 surname: dataUser.surname,
-                calle: "",
-                numero: "",
-                dpto: "",
-                entreCalles: "",
-                localidad: "",
-                codigoPostal: "",
-                provincia: "",
+                calle: dataUser.address.calle,
+                numero: dataUser.address.numero,
+                dpto: dataUser.address.dpto,
+                entreCalles: dataUser.address.entreCalles,
+                localidad: dataUser.address.localidad,
+                codigoPostal: dataUser.address.codigoPostal,
+                provincia: dataUser.address.provincia,
                 phone: dataUser.phone,
                 email: dataUser.email,
                 password: "",
@@ -120,12 +135,13 @@ const ProfileLayout = ({ profileKey }) => {
               <div className={style.formSetting}>
                 <CreateAcountForm
                   pivotuser={dataUser.pivotuser}
-                  dataAddress={dataUser.address}
+
                   idUser={dataUser.id}
                 />
               </div>
             </Formik>
           )}
+          {selectedKey === "opiniones" && <ReviewsClient infoUser={infouser}/>}
         </Content>
       </Layout>
     </Layout>

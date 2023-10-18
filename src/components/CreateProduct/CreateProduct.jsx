@@ -4,7 +4,7 @@ import CreateProductForm from './CreateProductForm'
 import CreateProductSchema from './createProduct.schema'
 import './createProduct.css'
 
-export const CreateProduct = () => {
+const CreateProduct = () => {
 const initialValues = {
     name: '',
     price: '',

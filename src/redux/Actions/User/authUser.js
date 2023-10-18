@@ -11,13 +11,20 @@ const authUser = (profileObj, accessToken) => {
   return async (dispatch) => {
     try {
       const { data } = await axios.post(endpoint, { profileObj, accessToken });
+      console.log(data.token)
       const id = data.idUser;
-      const response = await axios.get(endpoint2 + id);
+      const config = {
+        headers: {
+          authorization: `Bearer ${data.token}`
+        }
+      }
+      const response = await axios.get(endpoint2 + id, config);
 
       return dispatch({
         type: AUTH_USER,
         payload: response.data,
         idUser: response.data.id,
+        accessToken: data.token,
       });
     } catch (error) {
       if (error.response) {

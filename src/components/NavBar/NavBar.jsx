@@ -24,15 +24,21 @@ import {
   HeartOutlined,
 } from "@ant-design/icons";
 import CreateAcountModal from "../CreateAcountModal/CreateAcountModal";
+import postCart from "../../redux/Actions/ShoppingCart/postCart";
+import cleanCartReducer from "../../redux/Actions/ShoppingCart/cleanCartReducer";
 
 const NavBar = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const products = useSelector((state) => state.cart)
+  const userId = useSelector((state) => state.user.id)
+  const accessToken = useSelector((state) => state.accessToken)
 
   // logout
   const handleLogout = () => {
-
+    dispatch(postCart({ userId, products, accessToken }))
+      .then(() => dispatch(cleanCartReducer()))
     dispatch(logoutUser());
     navigate("/");
   };
@@ -72,24 +78,32 @@ const NavBar = () => {
           </Link>
         </Menu.Item>
       )}
-      <Menu.Item key="perfil">
-        <Link to="/perfil/perfil">
-          <ProfileOutlined className="menuIcon" />
-          Perfil
-        </Link>
-      </Menu.Item>
-      <Menu.Item key="compras">
-        <Link to="/perfil/compras">
-          <ShoppingOutlined className="menuIcon" />
-          Mis compras
-        </Link>
-      </Menu.Item>
-      <Menu.Item key="opiniones">
-        <Link to="/perfil/opiniones">
-          <StarOutlined className="menuIcon" />
-          Opiniones
-        </Link>
-      </Menu.Item>
+
+      {user.typeUser === "User" && (
+        <Menu.Item key="perfil">
+          <Link to="/perfil/perfil">
+            <ProfileOutlined className="menuIcon" />
+            Perfil
+          </Link>
+        </Menu.Item>
+      )}
+
+      {user.typeUser === "User" && (
+        <Menu.Item key="compras">
+          <Link to="/perfil/compras">
+            <ShoppingOutlined className="menuIcon" />
+            Mis compras
+          </Link>
+        </Menu.Item>
+      )}
+      {user.typeUser === "User" && (
+        <Menu.Item key="opiniones">
+          <Link to="/perfil/opiniones">
+            <StarOutlined className="menuIcon" />
+            Opiniones
+          </Link>
+        </Menu.Item>
+      )}
       <Menu.Item key="logout" onClick={handleLogout}>
         <LogoutOutlined className="menuIcon" />
         Cerrar Sesión
@@ -134,9 +148,7 @@ const NavBar = () => {
         shape="circle"
         size="large"
         className="buttonNavAccess"
-        // style={{
-        //   border: "none",
-        // }}
+
       >
         <UserOutlined />
       </Button>
@@ -157,9 +169,9 @@ const NavBar = () => {
         shape="circle"
         size="large"
         className="buttonNavAccess"
-        // style={{
-        //   border: "none",
-        // }}
+      // style={{
+      //   border: "none",
+      // }}
       >
         <Link to="/products">
           <button
@@ -186,7 +198,6 @@ const NavBar = () => {
         <DrawerCart
           openDrawer={openDrawer}
           onClose={onClose}
-          // saveCartLocal={saveCartLocal}
         />
       )}
       <div className="navBarContainer">
@@ -249,7 +260,7 @@ const NavBar = () => {
         )}
 
         {/* informacion del usuario */}
-        {!location.pathname.includes("admin") && user.email && (
+        {!location.pathname.includes("User") && user.email && (
           <div className="userInfo">
             <p>Hola, {user.name} </p>
             {/* {user.surname} */}
@@ -263,9 +274,6 @@ const NavBar = () => {
                 shape="circle"
                 size="large"
                 className="buttonNavAccess"
-                // style={{
-                //   border: "none",
-                // }}
               >
                 <HeartOutlined />
               </Button>
@@ -276,11 +284,7 @@ const NavBar = () => {
               size="large"
               className="buttonNavAccess"
               onClick={handle}
-              // style={{
-              //   // backgroundColor: "transparent",
-              //   border: "none",
-              //   // padding: 0,
-              // }}
+
             >
               <ShoppingCartOutlined />
               {totalProducts > 0 && (

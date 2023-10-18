@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
+import {  useSelector } from "react-redux";
 import { Button,Table, Tag } from "antd";
 import {
   EditOutlined,
 } from "@ant-design/icons";
-import getAllOrders from "../../../redux/Actions/Order/getOrders";
 import OrderExpandedRow from "./OrderExpandedRow";
 import UpdateOrderModal from "./UpdateOrderModal";
 
-export const OrdersTable = () => {
-  const dispatch = useDispatch();
+const OrdersTable = () => {
   const allOrders = useSelector((state) => state.allOrders);
   const tableOrders = allOrders.map((order) => {
     return {
@@ -62,7 +60,7 @@ export const OrdersTable = () => {
       title: "Dirección de envío",
       dataIndex: "",
       key: 8,
-      render: (cell) => <p>{cell?.User?.address || "No especificada"}</p>,
+      render: (cell) => <p>{cell?.User?.address? `${cell?.User?.address.calle} ${cell?.User?.address.numero} ${cell?.User?.address.dpto} ${cell?.User?.address.entreCalles} ${cell?.User?.address.localidad} ${cell?.User?.address.provincia} ${cell?.User?.address.codigoPostal}` : "No especificada"}</p>,
     },
     {
       title: "Teléfono",
@@ -85,6 +83,13 @@ export const OrdersTable = () => {
       sorter: (a, b) => a.totalAmount - b.totalAmount,
       key: 4,
       render: (text) => <p>${text}</p>,
+    },
+    {
+      title: "Fecha de compra",
+      dataIndex: "orderDate",
+      sorter: (a, b) => a.totalAmount - b.totalAmount,
+      key: 4,
+      render: (text) => <p>{text}</p>,
     },
     {
       title: "Id pago",
@@ -131,9 +136,7 @@ export const OrdersTable = () => {
     },
   ];
 
-  useEffect(() => {
-    dispatch(getAllOrders());
-  }, []);
+
 
   return (
     <div>
