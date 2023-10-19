@@ -14,7 +14,7 @@ const postProduct = (product, accessToken) => {
       }
       const { data } = await axios.post(endpoint, [product], config);
 
-      return { message: "Producto creado correctamente" };
+      return {message: data.product }
     } catch (error) {
       return { message: "Producto no pudo ser creado" };
     }

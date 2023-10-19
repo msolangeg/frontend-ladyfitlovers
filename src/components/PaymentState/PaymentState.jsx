@@ -28,7 +28,7 @@ const PaymentState = () => {
   // const shippingType= "Envío a domicilio"
 
   useEffect(() => {
-    if (parsedData.status === "approved") {
+    if (parsedData?.status === "approved") {
       const paymentApproved = async () => {
         if (userId) {
           const response = await dispatch(
@@ -53,7 +53,9 @@ const PaymentState = () => {
   }, []);
 
   const renderSuccessCard = () => (
+
     <Card>
+      <div style={{height: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
       <Result
         status="success"
         title="Compra realizada con éxito!"
@@ -63,19 +65,21 @@ const PaymentState = () => {
             type="primary"
             key="profile"
             onClick={() => navigate("/perfil/compras")}
-          >
+            >
             <ShoppingOutlined /> Ir al detalle de compra
           </Button>,
-          <Button type="default" key="home" onClick={() => history.push("/")}>
+          <Button type="default" key="home" onClick={() => navigate("/")}>
             Volver al inicio
           </Button>,
         ]}
-      />
+        />
+        </div>
     </Card>
   );
 
   const renderErrorCard = () => (
     <Card>
+      <div style={{height: '60vh', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
       <Result
         status="error"
         title="Error en la compra"
@@ -85,11 +89,12 @@ const PaymentState = () => {
             Volver al inicio
           </Button>,
         ]}
-      />
+        />
+        </div>
     </Card>
   );
 
-  return parsedData.status === "approved"
+  return parsedData?.status === "approved"
     ? renderSuccessCard()
     : renderErrorCard();
 };

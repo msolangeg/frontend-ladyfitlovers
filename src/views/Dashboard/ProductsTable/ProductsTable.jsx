@@ -1,4 +1,4 @@
-import { Button, Switch, Table } from "antd";
+import { Button, Switch, Table, message } from "antd";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
@@ -44,11 +44,11 @@ const ProductsTable = () => {
           active: value,
         }, accessToken)
       );     
-      message.success(response.message, [2], onClose());
+      if(response.message === "Producto editado correctamente")
+      message.success("Producto editado correctamente", [2]);
 
-      resetForm();
-    } catch {
-      message.error("Error al crear producto", [2], onClose());
+    } catch(error) {
+      console.log(error)
     }
     finally {
       dispatch(getAllProducts(accessToken));

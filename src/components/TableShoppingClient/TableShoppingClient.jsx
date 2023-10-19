@@ -13,14 +13,15 @@ const TableShoppingClient = () => {
   const accessToken = useSelector((state) => state.accessToken);
   const userId = useSelector((state) => state.user.id);
 
-  console.log(accessToken, "accessToken")
+  
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(getOrdersByUser({ userId, accessToken }));
   }, [dispatch]);
-  const tableOrders = ordersUser.map((order) => {
+  
+  const tableOrders = ordersUser?.map((order) => {
     return {
       ...order,
       key: order.id,
@@ -34,18 +35,6 @@ const TableShoppingClient = () => {
     };
   });
 
-  const colorStatus = (status) => {
-    switch (status) {
-      case "En proceso":
-        return "blue";
-      case "Cancelada":
-        return "red";
-      case "Entregada":
-        return "green";
-      default:
-        return "blue";
-    }
-  };
 
   const columns = [
     {

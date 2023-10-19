@@ -48,7 +48,7 @@ const hasSale = priceOnSale !== 0 && priceOnSale !== null
       <div key={id} className={style.container}>
         <div className={style.card}>
           <div className={style.imgBx}>
-            <img src={image} alt={name} />
+            <img src={image} alt={name} className={!productWithoutStock ? '': style.productWithoutStock}/>
           </div>
 
           <div className={style.contentBx}>
@@ -124,7 +124,7 @@ const hasSale = priceOnSale !== 0 && priceOnSale !== null
       <Row>
         <Col style={colStyle} span={24}>
           <NavLink className={style.buy} to={`/detail/${id}`}>
-            Comprar
+           {productWithoutStock ? "SIN STOCK" : "COMPRAR"}
           </NavLink>
         </Col>
       </Row>

@@ -39,7 +39,7 @@ const About = () => {
       github: 'https://github.com/altair201',
     },
     {
-      name: 'Jhonatan Cutisaca',
+      name: 'Jhonathan Cutisaca',
       description: 'Full Stack Developer, aportes al Back End.',
       image: 'https://res.cloudinary.com/dv7kzlqy6/image/upload/v1697599301/23-09-23_hmqerb.jpg',
       linkedin: 'https://www.linkedin.com/in/jhonathan-cutisaca/',
@@ -62,7 +62,7 @@ const About = () => {
     {
       name: 'Mayra Denhoff',
       description: 'Full Stack Developer, aportes al Back End.',
-      image: 'https://res.cloudinary.com/dv7kzlqy6/image/upload/v1697166325/Portrait_Placeholder_mk4ckt.png',
+      image: 'https://res.cloudinary.com/dv7kzlqy6/image/upload/v1697687279/LadyFitLovers/may_ok1hna.jpg',
       linkedin: 'https://www.linkedin.com/in/mayradenhoff/',
       github: 'https://github.com/Maydenhoff',
     },

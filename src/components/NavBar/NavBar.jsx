@@ -228,7 +228,7 @@ const NavBar = () => {
               Productos
             </button>
           </Link>
-          <Link to="/contacto">
+          {/* <Link to="/contacto">
             <button
               className={
                 location.pathname === "/contacto"
@@ -239,7 +239,7 @@ const NavBar = () => {
             >
               Contacto
             </button>
-          </Link>
+          </Link> */}
           {/* <Link to="/crear-producto">
             <button
               className={
@@ -269,7 +269,7 @@ const NavBar = () => {
         )}
         {!location.pathname.includes("admin") && (
           <>
-            <Link to="/perfil/favoritos">
+          { user.email && <Link to="/perfil/favoritos">
               <Button
                 shape="circle"
                 size="large"
@@ -277,7 +277,7 @@ const NavBar = () => {
               >
                 <HeartOutlined />
               </Button>
-            </Link>
+            </Link>}
 
             <Button
               shape="circle"
